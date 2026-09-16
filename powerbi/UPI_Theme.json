@@ -1,0 +1,94 @@
+{
+  "name": "UPI Analytics",
+  "dataColors": [
+    "#2A6F97",
+    "#2A9D8F",
+    "#F4A261",
+    "#E76F51",
+    "#264653",
+    "#8AB17D",
+    "#E9C46A",
+    "#6D597A",
+    "#457B9D",
+    "#A8DADC"
+  ],
+  "background": "#FFFFFF",
+  "foreground": "#1D2A35",
+  "tableAccent": "#2A6F97",
+  "good": "#2A9D8F",
+  "neutral": "#F4A261",
+  "bad": "#E76F51",
+  "maximum": "#2A6F97",
+  "minimum": "#E76F51",
+  "textClasses": {
+    "title": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 16,
+      "color": "#1D2A35"
+    },
+    "header": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 12,
+      "color": "#1D2A35"
+    },
+    "label": {
+      "fontFace": "Segoe UI",
+      "fontSize": 10,
+      "color": "#3C4A57"
+    },
+    "callout": {
+      "fontFace": "Segoe UI Light",
+      "fontSize": 32,
+      "color": "#2A6F97"
+    }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [
+          {
+            "show": true,
+            "color": { "solid": { "color": "#FFFFFF" } },
+            "transparency": 0
+          }
+        ],
+        "border": [
+          {
+            "show": true,
+            "color": { "solid": { "color": "#E4E9EE" } },
+            "radius": 6
+          }
+        ],
+        "visualHeader": [
+          {
+            "show": true,
+            "background": { "solid": { "color": "#FFFFFF" } },
+            "foreground": { "solid": { "color": "#2A6F97" } }
+          }
+        ]
+      }
+    },
+    "page": {
+      "*": {
+        "background": [{ "color": { "solid": { "color": "#F7F9FC" } }, "transparency": 0 }],
+        "outspace": [{ "color": { "solid": { "color": "#EDF1F6" } }, "transparency": 0 }]
+      }
+    },
+    "card": {
+      "*": {
+        "labels": [
+          {
+            "color": { "solid": { "color": "#2A6F97" } },
+            "fontSize": 26
+          }
+        ],
+        "categoryLabels": [
+          {
+            "color": { "solid": { "color": "#3C4A57" } },
+            "fontSize": 10
+          }
+        ]
+      }
+    }
+  }
+}
