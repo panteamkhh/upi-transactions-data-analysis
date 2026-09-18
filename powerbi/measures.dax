@@ -1,0 +1,146 @@
+// =============================================================================
+// UPI Transactions - DAX measures
+// -----------------------------------------------------------------------------
+// Raw copy of the measures documented in dax_measures.md.
+// In Power BI Desktop: Home -> Enter data -> create an empty table, or paste
+// each block into Model view -> New measure. All measures live on the
+// FactTransactions table unless noted.
+// =============================================================================
+
+
+// ---------- Core volume & value ---------------------------------------------
+
+Total Transactions =
+COUNTROWS ( FactTransactions )
+
+Successful Transactions =
+CALCULATE ( [Total Transactions], FactTransactions[IsSuccess] = 1 )
+
+Failed Transactions =
+[Total Transactions] - [Successful Transactions]
+
+Success Rate % =
+DIVIDE ( [Successful Transactions], [Total Transactions] )
+
+Total Value =
+SUM ( FactTransactions[Amount] )
+
+Settled Value =
+SUM ( FactTransactions[SettledAmount] )
+
+Failed Value =
+SUM ( FactTransactions[FailedAmount] )
+
+Average Transaction Value =
+DIVIDE ( [Total Value], [Total Transactions] )
+
+
+// ---------- Estimated platform revenue --------------------------------------
+// Assumption: 0.9% MDR on successful Payment rows; transfers/failures earn 0.
+
+Estimated Revenue =
+SUM ( FactTransactions[EstimatedRevenue] )
+
+Revenue per Transaction =
+DIVIDE ( [Estimated Revenue], [Total Transactions] )
+
+Revenue Yield % =
+DIVIDE ( [Estimated Revenue], [Settled Value] )
+
+
+// ---------- Customer & merchant reach ---------------------------------------
+
+Unique Customers =
+DISTINCTCOUNT ( FactTransactions[CustomerAccountNumber] )
+
+Unique Merchants =
+DISTINCTCOUNT ( DimMerchant[MerchantName] )
+
+Average Transactions per Customer =
+DIVIDE ( [Total Transactions], [Unique Customers] )
+
+
+// ---------- Time intelligence (requires DimDate marked as date table) --------
+
+Value Previous Month =
+CALCULATE ( [Total Value], DATEADD ( DimDate[Date], -1, MONTH ) )
+
+MoM Growth % =
+DIVIDE ( [Total Value] - [Value Previous Month], [Value Previous Month] )
+
+Value Previous Quarter =
+CALCULATE ( [Total Value], DATEADD ( DimDate[Date], -1, QUARTER ) )
+
+QoQ Growth % =
+DIVIDE ( [Total Value] - [Value Previous Quarter], [Value Previous Quarter] )
+
+Value YoY % =
+DIVIDE (
+    [Total Value] - CALCULATE ( [Total Value], SAMEPERIODLASTYEAR ( DimDate[Date] ) ),
+    CALCULATE ( [Total Value], SAMEPERIODLASTYEAR ( DimDate[Date] ) )
+)
+
+Running Total Value =
+CALCULATE (
+    [Total Value],
+    FILTER ( ALLSELECTED ( DimDate[Date] ), DimDate[Date] <= MAX ( DimDate[Date] ) )
+)
+
+Value Last 30 Days =
+CALCULATE (
+    [Total Value],
+    DATESINPERIOD ( DimDate[Date], MAX ( DimDate[Date] ), -30, DAY )
+)
+
+
+// ---------- Ranking & segmentation ------------------------------------------
+
+Merchant Rank by Value =
+RANKX ( ALL ( DimMerchant[MerchantName] ), [Total Value], , DESC )
+
+Top Merchant Value =
+MAXX ( ALL ( DimMerchant[MerchantName] ), [Total Value] )
+
+Failure Rate % =
+DIVIDE ( [Failed Transactions], [Total Transactions] )
+
+Avg Age =
+AVERAGE ( FactTransactions[CustomerAge] )
+
+Peak Hour Transactions =
+MAXX ( VALUES ( FactTransactions[Hour] ), CALCULATE ( [Total Transactions] ) )
+
+
+// ---------- Role-playing bank dimension -------------------------------------
+
+Received Value =
+CALCULATE (
+    [Total Value],
+    USERELATIONSHIP ( FactTransactions[BankReceivedKey], DimBank[BankKey] )
+)
+
+
+// ---------- Conditional formatting helper -----------------------------------
+
+Success Rate Colour =
+SWITCH (
+    TRUE (),
+    [Success Rate %] >= 0.85, "#2A9D8F",
+    [Success Rate %] >= 0.75, "#F4A261",
+    "#E76F51"
+)
+
+
+// ---------- Calculated columns ----------------------------------------------
+
+Revenue Band =
+SWITCH (
+    TRUE (),
+    FactTransactions[EstimatedRevenue] = 0, "No revenue",
+    FactTransactions[EstimatedRevenue] < 0.5, "Low",
+    FactTransactions[EstimatedRevenue] < 2, "Medium",
+    "High"
+)
+
+Hour Label =
+FORMAT ( FactTransactions[Hour], "00" ) & ":00"
